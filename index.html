@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Redesain Shopee App</title>
+    <!-- Menggunakan FontAwesome untuk Icon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* --- CSS VARIABLES & RESET --- */
+        :root {
+            --primary: #EE4D2D; /* Shopee Orange */
+            --bg-gray: #F5F5F5;
+            --text-dark: #333333;
+            --text-gray: #888888;
+            --white: #FFFFFF;
+            --green: #27AE60;
+            --red: #C0392B;
+            --shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background-color: #e0e0e0;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        /* --- MOBILE CONTAINER --- */
+        .app-container {
+            width: 100%;
+            max-width: 480px;
+            background-color: var(--bg-gray);
+            position: relative;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        /* --- CONTENT AREA (SCROLLABLE) --- */
+        .content {
+            flex: 1;
+            overflow-y: auto;
+            padding-bottom: 80px; /* Space for bottom nav */
+            display: none; /* Hidden by default */
+        }
+
+        .content.active {
+            display: block;
+        }
+
+        /* --- UTILITY CLASSES --- */
+        .card {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: var(--shadow);
+            margin-bottom: 12px;
+        }
+
+        .text-primary { color: var(--primary); }
+        .text-green { color: var(--green); }
+        .text-red { color: var(--red); }
+        .fw-bold { font-weight: bold; }
+        .flex-row { display: flex; justify-content: space-between; align-items: center; }
+        .mt-10 { margin-top: 10px; }
+        .mb-10 { margin-bottom: 10px; }
+
+        /* --- HEADER STYLES --- */
+        .header-orange {
+            background-color: var(--primary);
+            padding: 20px 16px 60px 16px; /* Extra padding bottom for overlap cards */
+            color: white;
+            border-bottom-left-radius: 15px;
+            border-bottom-right-radius: 15px;
+        }
+
+        .search-bar {
+            background: rgba(255,255,255,0.2);
+            padding: 10px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            color: white;
+        }
+        
+        .search-bar.white-theme {
+            background: #f0f0f0;
+            color: #555;
+            margin: 10px 16px;
+        }
+
+        /* --- BOTTOM NAVIGATION --- */
+        .bottom-nav {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            background: var(--white);
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            border-top: 1px solid #eee;
+            z-index: 100;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: var(--text-gray);
+            font-size: 10px;
+            cursor: pointer;
+            width: 20%;
+        }
+
+        .nav-item i {
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+
+        .nav-item.active {
+            color: var(--primary);
+        }
+
+        /* --- PAGE 1: BERANDA --- */
+        .wallet-card {
+            margin: -40px 16px 10px 16px; /* Overlap header */
+            position: relative;
+        }
+        
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            padding: 20px 16px;
+            background: var(--white);
+            margin-top: 10px;
+        }
+
+        .menu-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 11px;
+            text-align: center;
+            color: var(--text-dark);
+        }
+
+        .menu-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            border: 1px solid #eee;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 5px;
+            color: var(--primary);
+            font-size: 18px;
+        }
+
+        /* --- PAGE 2: KEUANGAN --- */
+        .finance-summary {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            padding: 16px;
+            margin-top: -30px;
+        }
+        
+        .transaction-list {
+            background: var(--white);
+            padding: 0 16px;
+        }
+        
+        .trans-item {
+            padding: 15px 0;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+        }
+        
+        .trans-icon {
+            width: 40px;
+            height: 40px;
+            background: #fcece8;
+            color: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+        }
+
+        /* --- PAGE 3: QRIS --- */
+        .page-qris {
+            background-color: var(--primary);
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .qr-card {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            width: 80%;
+            margin-bottom: 30px;
+            color: var(--text-dark);
+        }
+
+        .qr-placeholder {
+            width: 100%;
+            aspect-ratio: 1;
+            background-image: linear-gradient(45deg, #000 25%, transparent 25%), linear-gradient(-45deg, #000 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #000 75%), linear-gradient(-45deg, transparent 75%, #000 75%);
+            background-size: 20px 20px;
+            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+            opacity: 0.8;
+            margin-bottom: 20px;
+        }
+
+        .qris-actions {
+            display: flex;
+            gap: 20px;
+        }
+
+        .qris-btn {
+            background: white;
+            color: var(--text-dark);
+            width: 100px;
+            height: 100px;
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        /* --- PAGE 4: SHOPEE FOOD --- */
+        .food-filters {
+            display: flex;
+            overflow-x: auto;
+            padding: 10px 16px;
+            gap: 10px;
+            scrollbar-width: none;
+        }
+        
+        .filter-pill {
+            background: #eee;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+        
+        .filter-pill.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .promo-banner {
+            background: linear-gradient(90deg, #EE4D2D, #FF7F50);
+            color: white;
+            margin: 10px 16px;
+            padding: 20px;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+
+        .food-card {
+            background: white;
+            margin: 10px 16px;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .food-img {
+            height: 120px;
+            background-color: #ddd;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+        }
+        
+        .badge {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: var(--red);
+            color: white;
+            padding: 4px 8px;
+            font-size: 10px;
+            border-radius: 4px;
+        }
+
+        .food-info {
+            padding: 12px;
+        }
+
+        /* --- PAGE 5: SAYA (PROFILE) --- */
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .avatar {
+            width: 60px;
+            height: 60px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            font-size: 24px;
+        }
+
+        .member-card {
+            background: linear-gradient(90deg, #F2994A, #F2C94C);
+            color: white;
+            margin: -30px 16px 20px 16px;
+            border-radius: 12px;
+            padding: 20px;
+            position: relative;
+        }
+
+        .settings-list {
+            background: white;
+            margin: 0 16px;
+            border-radius: 12px;
+        }
+
+        .setting-item {
+            padding: 16px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+        
+        .setting-item:last-child { border-bottom: none; }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+
+    <!-- PAGE 1: BERANDA -->
+    <div id="page-home" class="content active">
+        <div class="header-orange">
+            <div class="flex-row mb-10">
+                <div style="font-weight: bold;">18:13</div>
+                <div class="flex-row" style="gap:5px"><i class="fas fa-signal"></i> <i class="fas fa-wifi"></i> <i class="fas fa-battery-full"></i></div>
+            </div>
+            <div class="search-bar">
+                <i class="fas fa-search" style="margin-right: 10px;"></i>
+                <span>Top Up e-Money</span>
+            </div>
+        </div>
+
+        <div class="card wallet-card">
+            <div class="flex-row">
+                <div class="flex-row" style="gap:8px">
+                    <i class="fas fa-wallet text-primary"></i> 
+                    <span class="fw-bold">ShopeePay</span>
+                </div>
+                <i class="far fa-eye text-gray"></i>
+            </div>
+            <h2 class="mt-10">Rp 1.250.000</h2>
+            <div class="flex-row mt-10" style="font-size: 12px; color: var(--text-gray);">
+                <span>Upgrade sekarang untuk bunga 6%!</span>
+                <i class="fas fa-chevron-right"></i>
+            </div>
+        </div>
+
+        <div class="flex-row" style="padding: 0 16px; gap: 10px;">
+            <div class="card" style="flex:1;">
+                <div class="flex-row"><i class="fas fa-credit-card text-primary"></i> <span class="fw-bold" style="font-size: 14px;">SPayLater</span></div>
+                <div style="font-size: 10px; color: #888; margin-top:5px;">Aktifkan Sekarang</div>
+            </div>
+            <div class="card" style="flex:1;">
+                <div class="flex-row"><i class="fas fa-money-bill-wave text-primary"></i> <span class="fw-bold" style="font-size: 14px;">SPinjam</span></div>
+                <div style="font-size: 10px; color: #888; margin-top:5px;">Aktifkan Sekarang</div>
+            </div>
+        </div>
+
+        <div class="menu-grid">
+            <div class="menu-item"><div class="menu-icon"><i class="fas fa-plus-circle"></i></div>Isi Saldo</div>
+            <div class="menu-item"><div class="menu-icon"><i class="fas fa-exchange-alt"></i></div>Tarik Tunai</div>
+            <div class="menu-item"><div class="menu-icon"><i class="fas fa-paper-plane"></i></div>Kirim Uang</div>
+            <div class="menu-item"><div class="menu-icon"><i class="fas fa-history"></i></div>Riwayat</div>
+            <div class="menu-item"><div class="menu-icon"><i class="fas fa-mobile-alt"></i></div>Pulsa</div>
+            <div class="menu-item"><div class="menu-icon"><i class="fas fa-bolt"></i></div>Listrik PLN</div>
+            <div class="menu-item"><div class="menu-icon"><i class="fas fa-gamepad"></i></div>Voucher</div>
+            <div class="menu-item"><div class="menu-icon"><i class="fas fa-th-large"></i></div>Lainnya</div>
+            <!-- ShopeeFood Icon Special -->
+            <div class="menu-item" onclick="switchPage('page-food', 'nav-food')">
+                <div class="menu-icon"><i class="fas fa-utensils text-primary"></i></div>ShopeeFood
+            </div>
+        </div>
+    </div>
+
+    <!-- PAGE 2: KEUANGAN -->
+    <div id="page-finance" class="content">
+        <div class="header-orange">
+            <div class="flex-row" style="justify-content: flex-start; gap: 15px; font-size: 18px; font-weight: bold;">
+                <i class="fas fa-arrow-left"></i>
+                <span>Keuangan</span>
+            </div>
+        </div>
+
+        <div class="finance-summary">
+            <div class="card">
+                <div class="flex-row mb-10"><i class="fas fa-arrow-down text-green"></i> <span style="font-size: 12px;">Pemasukan</span></div>
+                <div class="text-green fw-bold">Rp550.000</div>
+            </div>
+            <div class="card">
+                <div class="flex-row mb-10"><i class="fas fa-arrow-up text-red"></i> <span style="font-size: 12px;">Pengeluaran</span></div>
+                <div class="text-red fw-bold">Rp1.900.000</div>
+            </div>
+        </div>
+
+        <div class="card" style="margin: 0 16px 12px 16px;">
+            <h4 class="mb-10">Laporan Bulan Ini</h4>
+            <div class="flex-row mb-10" style="font-size: 13px;">
+                <span class="text-gray">Saldo Awal</span>
+                <span class="fw-bold">Rp1.000.000</span>
+            </div>
+            <div class="flex-row mb-10" style="font-size: 13px;">
+                <span class="text-gray">Total Pengeluaran</span>
+                <span class="fw-bold text-red">-Rp1.900.000</span>
+            </div>
+             <div class="flex-row" style="font-size: 14px; border-top: 1px solid #eee; padding-top: 10px;">
+                <span class="fw-bold">Saldo Akhir</span>
+                <span class="fw-bold">-Rp350.000</span>
+            </div>
+        </div>
+
+        <div class="transaction-list">
+            <h4 style="padding: 16px 0;">Semua Transaksi</h4>
+            
+            <div class="trans-item">
+                <div class="trans-icon"><i class="fas fa-wallet"></i></div>
+                <div style="flex:1;">
+                    <div class="fw-bold" style="font-size: 14px;">Transfer ke Ahmad Rifai</div>
+                    <div style="font-size: 11px; color: #888;">22 Des 2024, 14:30</div>
+                </div>
+                <div class="text-red fw-bold" style="font-size: 14px;">- Rp150.000</div>
+            </div>
+
+            <div class="trans-item">
+                <div class="trans-icon" style="color:var(--green); background: #e8fce8;"><i class="fas fa-plus"></i></div>
+                <div style="flex:1;">
+                    <div class="fw-bold" style="font-size: 14px;">Top Up ShoopPay</div>
+                    <div style="font-size: 11px; color: #888;">22 Des 2024, 10:15</div>
+                </div>
+                <div class="text-green fw-bold" style="font-size: 14px;">+ Rp500.000</div>
+            </div>
+            
+             <div class="trans-item">
+                <div class="trans-icon"><i class="fas fa-bolt"></i></div>
+                <div style="flex:1;">
+                    <div class="fw-bold" style="font-size: 14px;">Pembayaran Listrik</div>
+                    <div style="font-size: 11px; color: #888;">21 Des 2024, 16:45</div>
+                </div>
+                <div class="text-red fw-bold" style="font-size: 14px;">- Rp250.000</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PAGE 3: QRIS -->
+    <div id="page-qris" class="content" style="background-color: var(--primary);">
+        <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%;">
+            <h2 style="color: white; margin-bottom: 5px;">QRIS</h2>
+            <p style="color: rgba(255,255,255,0.8); font-size: 12px; margin-bottom: 20px;">Scan atau Tampilkan QR untuk Transaksi</p>
+            
+            <div class="qr-card">
+                <div class="qr-placeholder"></div>
+                <h3>Mahasiswa Univ</h3>
+                <p style="color: #888; font-size: 12px; margin-top: 5px;">ID: 0812-XXXX-XXXX</p>
+                <button style="margin-top: 15px; background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 20px; font-weight: bold; width: 100%;">
+                    <i class="fas fa-share-alt"></i> Bagikan QR
+                </button>
+            </div>
+
+            <div class="qris-actions">
+                <div class="qris-btn">
+                    <i class="fas fa-expand" style="font-size: 24px; color: var(--primary); margin-bottom: 8px;"></i>
+                    Scan QR
+                </div>
+                <div class="qris-btn">
+                    <i class="fas fa-upload" style="font-size: 24px; color: #3498db; margin-bottom: 8px;"></i>
+                    Upload QR
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PAGE 4: SHOPEE FOOD -->
+    <div id="page-food" class="content">
+        <div style="background: white; padding: 16px 0;">
+            <div style="padding: 0 16px;">
+                <div class="flex-row mb-10">
+                    <div class="fw-bold text-primary" style="font-size: 18px;"><i class="fas fa-utensils"></i> ShopeeFood</div>
+                </div>
+                <div class="search-bar white-theme" style="margin: 0; border: 1px solid #ddd;">
+                    <i class="fas fa-search"></i>
+                    <span style="margin-left: 10px;">Cari makanan atau restoran...</span>
+                </div>
+                <div style="font-size: 12px; color: #555; margin-top: 10px;">
+                    <i class="fas fa-map-marker-alt text-primary"></i> Kirim ke: <b>Rumah - Jl. Universitas No. 1</b>
+                </div>
+            </div>
+            
+            <div class="food-filters mt-10">
+                <div class="filter-pill active">Semua</div>
+                <div class="filter-pill">Promo</div>
+                <div class="filter-pill">Terdekat</div>
+                <div class="filter-pill">Rating Tertinggi</div>
+                <div class="filter-pill">24 Jam</div>
+            </div>
+        </div>
+
+        <div class="promo-banner">
+            <h3>Gratis Ongkir Hari Ini!</h3>
+            <p style="font-size: 12px; opacity: 0.9;">Min. pembelian Rp 50.000</p>
+        </div>
+
+        <div class="food-card">
+            <div class="food-img">
+                <div class="badge">Diskon 20%</div>
+                <i class="fas fa-utensils" style="font-size: 40px;"></i>
+            </div>
+            <div class="food-info">
+                <h4 class="mb-10">Warung Padang Sederhana</h4>
+                <div style="font-size: 12px; color: #888;" class="mb-10">Masakan Padang</div>
+                <div class="flex-row" style="font-size: 12px;">
+                    <span><i class="fas fa-star text-primary"></i> 4.5 • 1.2 km</span>
+                    <span class="fw-bold">Rp 15.000 - Rp 30.000</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="food-card">
+            <div class="food-img">
+                <div class="badge" style="background: var(--primary);">Gratis Ongkir</div>
+                <i class="fas fa-hamburger" style="font-size: 40px;"></i>
+            </div>
+            <div class="food-info">
+                <h4 class="mb-10">Burger King Deals</h4>
+                <div style="font-size: 12px; color: #888;" class="mb-10">Cepat Saji, Barat</div>
+                <div class="flex-row" style="font-size: 12px;">
+                    <span><i class="fas fa-star text-primary"></i> 4.8 • 3.5 km</span>
+                    <span class="fw-bold">Rp 45.000++</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PAGE 5: SAYA (PROFILE) -->
+    <div id="page-profile" class="content">
+        <div class="header-orange">
+            <div class="profile-header">
+                <div class="avatar"><i class="fas fa-user"></i></div>
+                <div>
+                    <h3 style="margin-bottom: 2px;">Mahasiswa Univ</h3>
+                    <p style="font-size: 12px; opacity: 0.8;">0812-XXXX-XXXX</p>
+                    <p style="font-size: 12px; opacity: 0.8;">mahasiswa@email.com</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="member-card">
+            <div class="flex-row">
+                <span style="font-size: 12px;">Status Member</span>
+                <i class="fas fa-medal"></i>
+            </div>
+            <h2 class="mt-10 mb-10">Silver Member</h2>
+            <div style="height: 4px; background: rgba(255,255,255,0.3); border-radius: 2px; overflow: hidden;">
+                <div style="width: 60%; height: 100%; background: white;"></div>
+            </div>
+            <div class="flex-row mt-10" style="font-size: 10px;">
+                <span>Transaksi Rp 2.000.000 lagi untuk Gold</span>
+                <span>60%</span>
+            </div>
+        </div>
+
+        <h4 style="margin: 0 16px 10px 16px;">Akun</h4>
+        <div class="settings-list">
+            <div class="setting-item">
+                <div class="flex-row" style="gap:10px;"><i class="far fa-user text-primary"></i> Informasi Profil</div>
+                <i class="fas fa-chevron-right text-gray" style="font-size: 12px;"></i>
+            </div>
+            <div class="setting-item">
+                <div class="flex-row" style="gap:10px;"><i class="far fa-credit-card text-primary"></i> Kartu & Rekening Bank</div>
+                <i class="fas fa-chevron-right text-gray" style="font-size: 12px;"></i>
+            </div>
+            <div class="setting-item">
+                <div class="flex-row" style="gap:10px;"><i class="fas fa-medal text-primary"></i> Poin Rewards</div>
+                <div class="flex-row" style="gap:5px;">
+                    <span style="background: #ffe0b2; color: #e65100; font-size: 10px; padding: 2px 6px; border-radius: 10px;">2,450</span>
+                    <i class="fas fa-chevron-right text-gray" style="font-size: 12px;"></i>
+                </div>
+            </div>
+        </div>
+
+        <h4 style="margin: 20px 16px 10px 16px;">Pengaturan</h4>
+        <div class="settings-list">
+            <div class="setting-item">
+                <div class="flex-row" style="gap:10px;"><i class="fas fa-cog text-primary"></i> Pengaturan Aplikasi</div>
+                <i class="fas fa-chevron-right text-gray" style="font-size: 12px;"></i>
+            </div>
+            <div class="setting-item">
+                <div class="flex-row" style="gap:10px;"><i class="fas fa-question-circle text-primary"></i> Bantuan</div>
+                <i class="fas fa-chevron-right text-gray" style="font-size: 12px;"></i>
+            </div>
+             <div class="setting-item">
+                <div class="flex-row" style="gap:10px;"><i class="fas fa-sign-out-alt text-red"></i> Keluar</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- BOTTOM NAVIGATION -->
+    <nav class="bottom-nav">
+        <div class="nav-item active" id="nav-home" onclick="switchPage('page-home', 'nav-home')">
+            <i class="fas fa-home"></i>
+            <span>Beranda</span>
+        </div>
+        <div class="nav-item" id="nav-finance" onclick="switchPage('page-finance', 'nav-finance')">
+            <i class="fas fa-wallet"></i>
+            <span>Keuangan</span>
+        </div>
+        <div class="nav-item" id="nav-qris" onclick="switchPage('page-qris', 'nav-qris')">
+            <i class="fas fa-qrcode"></i>
+            <span>QRIS</span>
+        </div>
+        <div class="nav-item" id="nav-food" onclick="switchPage('page-food', 'nav-food')">
+            <i class="fas fa-utensils"></i>
+            <span>ShopeeFood</span>
+        </div>
+        <div class="nav-item" id="nav-profile" onclick="switchPage('page-profile', 'nav-profile')">
+            <i class="far fa-user"></i>
+            <span>Saya</span>
+        </div>
+    </nav>
+
+</div>
+
+<script>
+    // Fungsi JavaScript untuk Navigasi Tab
+    function switchPage(pageId, navId) {
+        // 1. Sembunyikan semua halaman (content)
+        const pages = document.querySelectorAll('.content');
+        pages.forEach(page => {
+            page.classList.remove('active');
+            // Jika halaman adalah QRIS, atur display flex agar di tengah, selain itu block
+            if(page.id === 'page-qris') {
+                page.style.display = 'none';
+            }
+        });
+
+        // 2. Tampilkan halaman yang dipilih
+        const targetPage = document.getElementById(pageId);
+        targetPage.classList.add('active');
+        if(pageId === 'page-qris') {
+             targetPage.style.display = 'flex';
+        }
+
+        // 3. Reset warna tombol navigasi
+        const navItems = document.querySelectorAll('.nav-item');
+        navItems.forEach(item => {
+            item.classList.remove('active');
+        });
+
+        // 4. Aktifkan tombol navigasi yang dipilih
+        if (navId) {
+            document.getElementById(navId).classList.add('active');
+        }
+    }
+</script>
+
+</body>
+</html>
